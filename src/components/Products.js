@@ -14,6 +14,9 @@ import {
   checkProduct,
   deleteProduct,
   getProducts,
+  useCheckProductMutation,
+  useDeleteProductMutation,
+  useGetProducts,
 } from "../repository/ProductRepository";
 import SearchForm from "./SearchForm";
 import ProductItem from "./ProductItem";
@@ -28,39 +31,19 @@ function Products() {
   const [checkAll, setCheckAll] = useState(false);
   const queryClient = useQueryClient();
   const navigate = useNavigate();
-  const productsQuery = useQuery(
-    ["products", keyword, currentPage, pageSize],
-    () => getProducts(keyword, currentPage, pageSize),
-    {
-      enabled: true,
-      onSuccess: (response) => {
-        const totalElements = response.headers["x-total-count"];
-        let pages = Math.floor(totalElements / pageSize);
-        if (totalElements % pageSize != 0) ++pages;
-        setTotalPages(pages);
-      },
+  const productsQuery = useGetProducts(
+    keyword,
+    currentPage,
+    pageSize,
+    (response) => {
+      const totalElements = response.headers["x-total-count"];
+      let pages = Math.floor(totalElements / pageSize);
+      if (totalElements % pageSize != 0) ++pages;
+      setTotalPages(pages);
     }
   );
-
-  const checkProductMutation = useMutation(checkProduct, {
-    onSuccess: (_, data) => {
-      //queryClient.invalidateQueries("products") //allProductsQuery.refetch(),
-      queryClient.setQueriesData("products", (oldQueryData) => {
-        console.log(oldQueryData);
-        const newData = oldQueryData.data.map((p) => {
-          if (p.id == data.id) return { ...p, checked: !p.checked };
-          else return p;
-        });
-        return {
-          ...oldQueryData,
-          data: newData,
-        };
-      });
-    },
-  });
-  const deleteProductMutation = useMutation(deleteProduct, {
-    onSuccess: () => queryClient.invalidateQueries("products"),
-  });
+  const checkProductMutation = useCheckProductMutation();
+  const deleteProductMutation = useDeleteProductMutation();
 
   const handleSearchProducts = (e) => {
     e.preventDefault();

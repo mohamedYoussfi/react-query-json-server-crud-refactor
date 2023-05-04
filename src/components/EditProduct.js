@@ -1,7 +1,9 @@
 import React, { useState } from "react";
 import { useParams } from "react-router-dom";
-import { getProductById, updateProduct } from "../repository/ProductRepository";
-import { useMutation, useQuery } from "react-query";
+import {
+  useGetProductByIdQuery,
+  useUpdateProductMutation,
+} from "../repository/ProductRepository";
 
 function EditProduct() {
   const { id } = useParams();
@@ -9,21 +11,14 @@ function EditProduct() {
   const [price, setPrice] = useState(0);
   const [checked, setChecked] = useState(false);
 
-  const getProductByIdQuery = useQuery(
-    ["product", id],
-    () => getProductById(id),
-    {
-      onSuccess: (response) => {
-        setName(response.data.name);
-        setPrice(response.data.price);
-        setChecked(response.data.checked);
-      },
-    }
+  const getProductByIdQuery = useGetProductByIdQuery(
+    id,
+    setName,
+    setPrice,
+    setChecked
   );
 
-  const updateProductMutation = useMutation(updateProduct, {
-    onSuccess: () => {},
-  });
+  const updateProductMutation = useUpdateProductMutation();
   const handleUpdateProduct = (event) => {
     event.preventDefault();
     let product = { id, name, price, checked };

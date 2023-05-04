@@ -1,14 +1,15 @@
 import React, { useState } from "react";
 import { useMutation } from "react-query";
-import { addProduct } from "../repository/ProductRepository";
+import {
+  addProduct,
+  useNewProductMutation,
+} from "../repository/ProductRepository";
 
 function NewProduct() {
   const [name, setName] = useState("");
   const [price, setPrice] = useState(0);
   const [checked, setChecked] = useState(false);
-  const newProductMutation = useMutation(addProduct, {
-    onSuccess: () => {},
-  });
+  const newProductMutation = useNewProductMutation();
   const handleSaveProduct = (event) => {
     event.preventDefault();
     let product = { name, price, checked };
